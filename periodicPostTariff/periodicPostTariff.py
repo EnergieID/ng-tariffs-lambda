@@ -64,9 +64,9 @@ def get_tariff_data_from_s3(event, context):
 
     return tariff_jsons
 
-def create_connection(esb_host,esb_username,esb_password):
+def create_connection(esb_host,esb_username,esb_password, esb_port=5672):
     credentials = pika.credentials.PlainCredentials(esb_username,esb_password)
-    parameters = pika.ConnectionParameters(host=esb_host,port=5672,credentials=credentials)
+    parameters = pika.ConnectionParameters(host=esb_host,port=esb_port,credentials=credentials)
     connection = pika.BlockingConnection(parameters)
     return connection
 
@@ -96,7 +96,7 @@ def lambda_handler(event, context):
     
     print("Making connection to broker @ "+event['esb-host'])
     
-    connection=create_connection(event['esb-host'],event['esb-username'],event['esb-password'])
+    connection=create_connection(event['esb-host'],event['esb-username'],event['esb-password'], event.get('esb_port', 5672))
     channel=create_channel(connection)
     print("Connection established!")
 
